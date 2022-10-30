@@ -3,6 +3,7 @@
 import cmd
 import sys
 import models
+import shlex
 from models.base_model import BaseModel
 from models.user import User
 from models.state import State
@@ -19,6 +20,39 @@ class HBNBCommand(cmd.Cmd):
     methods = ['show', 'create', 'destroy', 'update', 'all']
     classes = [
             'BaseModel', 'User', 'State', 'City', 'Amenity', 'Place', 'Review']
+
+    def precmd(self, line):
+        """Implement custom commands"""
+
+        if line == '' or not line.endswith(')'):
+            return line
+
+        flag = 1
+
+        for x in self.classes:
+            for y in self.methods:
+                if line.startswith("{}.{}(".format(x, y)):
+                    flag = 0
+        if flag:
+            return line
+
+        tmp = ''
+        for x in self.methods:
+            tmp = line.replace('(', '.').replace(')', '.').split('.')
+            if tmp[0] not in self.classes:
+                return ' '.join(tmp)
+            while tmp[-1] == '':
+                tmp.pop()
+            if len(tmp) < 2:
+                return line
+            if len(tmp) == 2:
+                tmp = '{} {}'.format(tmp[1], tmp[0])
+            else:
+                tmp = '{} {} {}'.format(tmp[1], tmp[0], tmp[2])
+            if tmp.startswith(x):
+                return tmp
+
+        return ''
 
     def do_quit(self, line):
         """Exits the program"""
@@ -45,7 +79,7 @@ class HBNBCommand(cmd.Cmd):
         else:
             obj = eval("{}()".format(arg[0]))
             print(obj.id)
-            models.storage.save
+            models.storage.save()
 
     def do_show(self, line):
         """Prints the string representation of an instance based on the class
@@ -133,10 +167,14 @@ class HBNBCommand(cmd.Cmd):
                         eval(arg[3])
                     except (SyntaxError, NameError):
                         arg[3] = "'{}'".format(arg[3])
-                        setattr(obj, arg[2], eval(arg[3]))
-                        obj.save()
+                    setattr(obj, arg[2], eval(arg[3]))
+                    obj.save()
             except KeyError:
                 print("** no instance found **")
+
+    def parse(line):
+        """Parses a given string, and returns a list"""
+        return shlex.split(line)
 
 
 if __name__ == '__main__':
