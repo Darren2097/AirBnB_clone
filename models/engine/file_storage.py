@@ -2,6 +2,8 @@
 """FileStorage class that serializes instances to a JSON file and
 deserializes JSON file to instances"""
 import json
+from models.base_model import BaseModel
+from models.user import User
 
 
 class FileStorage:
@@ -20,7 +22,6 @@ class FileStorage:
         if obj:
             key = "{}.{}".format(type(obj).__name__, obj.id)
             self.__objects[key] = obj
-
 
     def save(self):
         """serializes __objects to the JSON file"""

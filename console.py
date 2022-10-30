@@ -3,12 +3,15 @@
 import cmd
 import sys
 import models
+from models.base_model import BaseModel
+from models.user import User
 
 
 class HBNBCommand(cmd.Cmd):
     """HBNBCommand class"""
 
     prompt = '(hbnb) '
+    methods = ['show', 'create', 'destroy', 'update', 'all']
     classes = ['BaseModel']
 
     def do_quit(self, line):
